@@ -1,64 +1,72 @@
-################################################################################
-################################################################################
-######      Analysis Pipeline for TransEnvironmental Programming          ######
-################################################################################
-################################################################################
-
-################################################################################
-################################################################################
+###############################################################################
+#   Copyright 2024 Michael Ryan Hunsaker, M.Ed., Ph.D.
+#   hunsakerconsulting@gmail.com
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+###############################################################################
+######      Analysis Pipeline for TransEnvironmental Programming          #####
+###############################################################################
 # Preprocessing Steps:
 #
 # Student data needs to be entered into an Excel or Google Docs sheet with the
 # following column names:
 # Name - this can be a student identifier or name.
-# Outcome - this is where the team envisions the student being placed
-# FSIQ - This is the Full Scale IQ, General Performance Index, or PRI from an IQ Test
+# Outcome - this is where the team envisions the student being placed, THIS IS 
+#     NOT USED IN THE ANALYSES, IT IS JUST FOR LATER VISUAL ANALYSIS
+# FSIQ - This is the Full Scale IQ, General Performance Index, or PRI from an 
+#    IQ Test
 # Basic_Reading_Skills - The Basic Reading Skills Score on the Woodcock Johnson
 # Reading_Comp - The Reading Comprehension Score on the Woodcock Johnson
 # Math_Calc - The Math Calculation Score on the Woodcock Johnson
 # Math_Reasoning - The Math Reasoning Score on the Woodcock Johnson
 # Written_Lang - The Written Language Score on the Woodcock Johnson
 # Adaptive - General Adaptive Composite from Vineland or ABAS.
-# SocioEmotional - Anxiety T score, BSI T Score, or other relevant Score from BASC, CBCL
+# SocioEmotional - Anxiety T score, BSI T Score, or other relevant Score from 
+#    BASC, CBCL
 # CBM_Math - Performance on District benchmarks or classroom CFA (%ile)
 # CBM_Reading - Performance on District benchmarks or classroom CFA (%ile)
 #
 # When all the data are input, the file needs to be saved or exported as a .csv
-# file. This is available as an option under Save As or Export.
+# file. This is available as an option under Save As... or Export.
 #
-# An important note is the Algorithm will print as a student Name whatever is in
-# The "Name" column on any heatmap. These names should be omitted per FERPA prior
-# to sharing any information outside IEP/School teams.
-#
-#
-#
-################################################################################
-################################################################################
+# An important note is the Algorithm will print as a student Name whatever is 
+# in the "Name" column on any heatmap. These names should be omitted or coded 
+# per FERPA prior to sharing any information outside IEP/School teams.
+###############################################################################
 
-############################# Load data folder #################################
-setwd("") #Put the address to the folder that contains the student data in between the quotation marks
+############################ Load data folder #################################
+setwd(" ") #Put the address to the folder that contains the student data in between the quotation marks
 
-########################## Verify Working Directory ############################
+########################## Verify Working Directory ###########################
 WD<-getwd() #This should print to the screen the address of the folder that contains your data
 
-########## Verify required data are present in the working directory ###########
+########## Verify required data are present in the working directory ##########
 list.files(WD) #You should see the file with the data printed on the screen along with all the other files in the folder
 
-#################################################################################
-#################################################################################
+###############################################################################
 
-########### Install and load  all needed packages for the algorithms ###########
+########### Install and load  all needed packages for the algorithms ##########
 install.packages(c("gplots", "RColorBrewer", "rpart", "rpart.plot", "e1071"), dependencies=TRUE, repos="https://cloud.r-project.org/")
 library(e1071)
 library(gplots)
 library(RColorBrewer)
 library(rpart)
 library(rpart.plot)
-################################################################################
-################################################################################
-######                    Individual School Data                         #######
-################################################################################
-################################################################################
+###############################################################################
+###############################################################################
+######                    Individual School Data                         ######
+###############################################################################
+###############################################################################
 
 ## School X Data
 SXData<-read.csv("SchoolX_data.csv", head=TRUE, sep=",")
@@ -76,18 +84,18 @@ pdf("Heatmap_SX.pdf", width=8.5, height=14, bg="transparent", colormodel="cmyk",
 heatmap.2(SXClusteringdata, main="SX", col=mypallete, scale="none",rowsep=1:100, colsep=1:10, sepcol="white", sepwidth=c(.015,.025), trace="none", labRow=SXData$Name, margins=c(10,10), cexRow=.75, cexCol=1, keysize=2, lhei=c(3,10))
 dev.off()
 
-################################################################################
+###############################################################################
 #
 #	Repeat this for each school, replacing "SX" with desired school identifier
 #            In this document I will just use S1Data, S2Data, ...
-################################################################################
+###############################################################################
 
 
-################################################################################
-################################################################################
-######                    Omnibus School Data                            #######
-################################################################################
-################################################################################
+###############################################################################
+###############################################################################
+######                    Omnibus School Data                            ######
+###############################################################################
+###############################################################################
 
 ## Combine all data into a single entity
 merged_data<-rbind(S1Data, S2Data, S3Data, ... ) #put the name for all the School Data
@@ -106,14 +114,14 @@ pdf("Heatmap_Overall.pdf", ,width=8.5,height=14, bg="transparent",colormodel="cm
 heatmap.2(OverallClusteringdata, main="Combined School Data", col=mypallete, scale="none", rowsep=1:200, colsep=1:10,  sepcol="white", sepwidth=c(.015,.025), trace="none", labRow=merged_data$Name, margins=c(10,10), cexRow=.75, cexCol=1, keysize=2, lhei=c(3,10))
 dev.off()
 
-################################################################################
-################################################################################
-######           Regression Tree Confirmation of Decision Tree           #######
-######               Using the data files generated above                #######
-################################################################################
-################################################################################
+###############################################################################
+###############################################################################
+######           Regression Tree Confirmation of Decision Tree           ######
+######               Using the data files generated above                ######
+###############################################################################
+###############################################################################
 
-##################### Confirmation of Decision Trees ###########################
+##################### Confirmation of Decision Trees ##########################
 ## Academic Testing (WJ-IIINU Separated into Component Subtests)
 
 fit1<-rpart(Outcome~Adaptive+FSIQ+CBM_Math+CBM_Reading+Basic_Reading_Skills+Reading_Comp+Math_Reasoning+Math_Calc+Written_Lang+SocioEmotional, data=na.omit(merged_data),  cost=c(3,1,2,2,2,2,2,2,2,1), parms=list(prior=c(.4,.6)), method="class",  control=rpart.control(minsplit=1,minbucket=1,cp=-1))
@@ -139,18 +147,18 @@ pdf("RegressionTreeNoAcademics.pdf", paper="letter", bg="transparent",colormodel
 rpart.plot(fit3,type=0,extra=100, branch.lty=1, shadow.col="gray", nn=TRUE, under=TRUE, tweak=.75, main="Decision Tree (Academic Testing Absent)")
 dev.off()
 
-################################################################################
-################################################################################
-######   Support Vector Machines Modeling of Decision Tree Placements    #######
-######       All AA Students in Granite School District Combined         #######
-######           Final Decision Tree Placement Used as "Correct"         #######
-################################################################################
-################################################################################
+###############################################################################
+###############################################################################
+######   Support Vector Machines Modeling of Decision Tree Placements    ######
+######       All AA Students in Granite School District Combined         ######
+######           Final Decision Tree Placement Used as "Correct"         ######
+###############################################################################
+###############################################################################
 
 # Set up text file for simulation results to be written to file named by the date
 sink(paste(format(Sys.time(), "%Y-%m-%d %I-%p"), "txt", sep = "."), type="output", split=FALSE)
 
-############# Iterative K means Confirmation of SVM Results ####################
+############# Iterative K means Confirmation of SVM Results ###################
 print(Sys.time()) # Time Stamps the Output File
 
 ## Split the Learning and Test Set by Different values
@@ -185,8 +193,8 @@ print(summary(svm.fit5))
 print(predict(svm.fit5))
 sink()
 
-################################################################################
-################################################################################
-############################## End Document ####################################
-################################################################################
-################################################################################
+###############################################################################
+###############################################################################
+############################## End Document ###################################
+###############################################################################
+###############################################################################
